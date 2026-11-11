@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Purchasing and production improvement</title>
+<meta name="description" content="Supplier selection, shortage early warning, time studies and line balancing, defect reduction, and AI-assisted purchasing checked for accuracy, for a small electronics assembler.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#f6f5f3;--surface:#fff;--ink:#17181b;--soft:#5f646c;--rule:#e1dfda;--accent:#c4501f;--a2:#2c5f8a;--good:#2b7a50;--bad:#b3383a;--warn:#b7791f;--chip:#efede9;
+color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--paper:#121315;--surface:#1b1c1f;--ink:#eceef0;--soft:#a3a8b0;--rule:#2d3035;--accent:#f08a5d;--a2:#7fb2e0;--good:#5fc28c;--bad:#ec7d7f;--warn:#e3b04f;--chip:#25272b;color-scheme:dark}}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 Inter,"Helvetica Neue",Arial,sans-serif}
+.hr-bar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px clamp(14px,3vw,32px);font:500 13px/1.4 -apple-system,"Segoe UI",Inter,Arial,sans-serif;background:#f1f2f4;color:#3b4250;border-bottom:1px solid #dfe2e7}
+.hr-bar a{color:inherit;text-decoration:none}.hr-bar a:hover{text-decoration:underline}
+@media (prefers-color-scheme:dark){.hr-bar{background:#171b21;color:#b4bcc8;border-bottom-color:#2a313b}}
+main{max-width:1140px;margin:0 auto;padding:36px clamp(16px,3vw,36px) 64px}
+h1,h2{font-family:"Space Grotesk",Inter,sans-serif;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,4.6vw,3rem);line-height:1.05;margin:6px 0 10px}
+h2{font-size:1.4rem;margin:0 0 6px}
+.num{font-family:"Space Grotesk",sans-serif;font-weight:700}
+.soft{color:var(--soft)}.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:.86em}
+.lede{max-width:70ch;color:var(--soft);font-size:1.08rem;margin:0}
+section{margin-top:40px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:22px}
+.kpi{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px}
+.kpi b{display:block;font:700 1.6rem "Space Grotesk",sans-serif}.kpi span{color:var(--soft);font-size:.86rem}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:12px;padding:18px}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
+.side{display:grid;grid-template-columns:minmax(240px,.7fr) minmax(0,1.3fr);gap:20px}
+@media (max-width:880px){.grid2,.side{grid-template-columns:1fr}}
+.slider{margin-bottom:12px}.slider label{display:flex;justify-content:space-between;font-weight:500}.slider input{width:100%;accent-color:var(--accent)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.9rem}
+th,td{padding:7px 8px;border-bottom:1px solid var(--rule);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-size:.76rem;color:var(--soft);font-weight:600}
+td.pick{font-weight:700;color:var(--good)}
+.heat td.c{min-width:44px;font-size:.8rem}
+.neg{background:color-mix(in srgb,var(--bad) 22%,transparent);color:var(--bad);font-weight:700}
+.low{background:color-mix(in srgb,var(--warn) 18%,transparent)}
+svg{width:100%;height:auto;display:block}
+.axis{fill:var(--soft);font-size:11px;font-family:inherit}
+.toggle{display:flex;gap:6px;margin-bottom:10px}.toggle button{font:inherit;font-weight:600;padding:6px 14px;border-radius:999px;border:1px solid var(--rule);background:var(--surface);color:var(--ink);cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.callout{border-left:5px solid var(--bad);background:var(--surface);border-radius:0 10px 10px 0;padding:12px 16px;margin-top:12px}
+.email{font:500 .82rem "JetBrains Mono",monospace;white-space:pre-wrap;background:var(--paper);border-radius:6px;padding:8px 10px;margin:6px 0}
+.flag{color:var(--warn);font-weight:600;font-size:.86rem}
+.foot{margin-top:56px;padding-top:14px;border-top:1px solid var(--rule);font-size:.88rem;color:var(--soft)}
+</style>
+</head>
+<body>
+<nav class="hr-bar" aria-label="Portfolio"><a href="https://harish04010-portfolio.vercel.app">&larr; Harish Gopu's portfolio</a><a href="https://github.com/harish04010/purchasing-production-improvement">View the code on GitHub &rarr;</a></nav>
+<main>
+<p class="soft" style="margin:0;font-weight:600">Operations &amp; continuous improvement · Brightline Instruments (case study)</p>
+<h1>Keep parts coming, make the line faster, and check the automation</h1>
+<p class="lede">A quarter of operations work at a small electronics assembler building two handheld devices: choosing suppliers on total cost, warning about shortages before they stop the line, finding the bottleneck with a time study, cutting the top defect, and automating quote entry only as far as it can be trusted.</p>
+<div class="kpis" id="kpis"></div>
+
+<section class="side">
+  <div class="card"><span class="tag">1 · Purchasing</span><h2>Which supplier, on what basis?</h2>
+    <p class="soft" style="margin:0 0 12px">Lowest price isn't lowest cost. Weight what matters; the pick updates for every part.</p><div id="weights"></div>
+    <p class="soft" style="font-size:.84rem;margin:0">Landed cost adds expected defect cost (rework at ~4× part price × the supplier's defect rate) and expected disruption from late deliveries.</p></div>
+  <div class="card"><div class="scroll"><table id="supp"></table></div></div>
+</section>
+
+<section class="card"><span class="tag">2 · Shortage early warning</span><h2>Projected on-hand, week by week</h2>
+  <p class="soft" style="margin:0 0 10px">Stock today, plus open purchase orders when they're now expected, minus what the build plan consumes. Red is a shortage; amber is under one week of cover.</p>
+  <div class="scroll"><table class="heat" id="mrp"></table></div><div id="mrpnote"></div></section>
+
+<section class="side">
+  <div class="card"><span class="tag">3 · Time study</span><h2>Find the bottleneck</h2>
+    <p class="soft" style="margin:0 0 10px">30 observed cycles per station. Interruptions (part hunting, fixture jams) are logged separately and kept out of the standard time; a 12% allowance is added.</p>
+    <div class="toggle" id="tog"><button data-k="before" aria-pressed="true">Current line</button><button data-k="after">Rebalanced</button></div>
+    <div id="linekpi"></div></div>
+  <div class="card"><svg id="line" viewBox="0 0 620 280" role="img" aria-label="Standard time per station against takt time"></svg><p class="soft" id="linenote" style="font-size:.88rem;margin:6px 0 0"></p></div>
+</section>
+
+<section class="grid2">
+  <div class="card"><span class="tag">4 · Quality</span><h2>Defects by cause, 12 weeks</h2><svg id="pareto" viewBox="0 0 520 260"></svg></div>
+  <div class="card"><h2>Did the fix work?</h2><p class="soft" style="margin:0 0 6px" id="pnote"></p><svg id="pchart" viewBox="0 0 520 240"></svg></div>
+</section>
+
+<section class="side">
+  <div class="card"><span class="tag">5 · Automation, verified</span><h2>Reading supplier quotes</h2>
+    <p class="soft" style="margin:0 0 10px">An extraction step reads part, supplier, price, minimum order and lead time out of quote emails. Before trusting it, every result was checked against the true values.</p><div id="acc"></div></div>
+  <div class="card"><h2 style="font-size:1.1rem">What the review check caught</h2><div id="caught"></div></div>
+</section>
+
+<footer class="foot">Data is generated for this case study: a fictional assembler, its suppliers, build plan, time studies, defect log and quote emails. Assumptions (allowance, defect cost multiple, disruption cost) are stated where they're used. Code and tests are in the repository.</footer>
+</main>
+<script type="module">
+const d = await fetch("data.json").then(r => r.json());
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pct = (v, dp = 1) => (v * 100).toFixed(dp) + "%", L = d.line, Q = d.quality, A = d.automation;
+const p101 = d.mrp.find(m => m.part === "P-101");
+document.getElementById("kpis").innerHTML = [
+  [`${L.capacity_before} → ${L.capacity_after}`, `units/day after rebalancing (demand ${L.demand_per_day})`],
+  [`${pct(Q.p_before)} → ${pct(Q.p_after)}`, `${Q.focus.toLowerCase()} rate after the fix (≈${Q.units_saved} defects avoided)`],
+  [`Week ${p101.first_short_week}`, `${p101.desc.toLowerCase()} runs out: expedite now`],
+  [`${A.wrong_caught} of ${A.wrong}`, `wrong quote extractions caught before entry`],
+].map(([b, s]) => `<div class="kpi"><b>${b}</b><span>${s}</span></div>`).join("");
+
+// ---------------------------------------------------------------- 1. suppliers
+const W = { cost: 50, lead: 20, quality: 20, delivery: 10 };
+const WL = { cost: "Landed cost", lead: "Lead time", quality: "Quality (defect rate)", delivery: "On-time delivery" };
+document.getElementById("weights").innerHTML = Object.keys(W).map(k => `<div class="slider"><label for="w-${k}"><span>${WL[k]}</span><output id="o-${k}">${W[k]}</output></label><input id="w-${k}" type="range" min="0" max="100" step="5" value="${W[k]}"></div>`).join("");
+Object.keys(W).forEach(k => document.getElementById(`w-${k}`).oninput = e => { W[k] = +e.target.value; document.getElementById(`o-${k}`).textContent = W[k]; suppliers(); });
+function suppliers() {
+  const parts = [...new Set(d.suppliers.map(s => s.part))], tot = Object.values(W).reduce((a, b) => a + b, 0) || 1;
+  const sups = [...new Set(d.suppliers.map(s => s.supplier))];
+  let rows = "", premium = 0, leadPick = 0, leadLow = 0, qtyAll = 0, defPick = 0, defLow = 0, changed = 0;
+  parts.forEach(p => {
+    const q = d.suppliers.filter(s => s.part === p), mn = k => Math.min(...q.map(s => s[k])), mx = k => Math.max(...q.map(s => s[k]));
+    // Scale each criterion 0-1 within the part (best = 1, worst = 0) so a weight means what it says.
+    // Ratios ("cheapest / this") let defect rates, which differ 4x, swamp prices that differ 10%.
+    const lowBest = k => s => mx(k) === mn(k) ? 1 : (mx(k) - s[k]) / (mx(k) - mn(k)), highBest = k => s => mx(k) === mn(k) ? 1 : (s[k] - mn(k)) / (mx(k) - mn(k));
+    const score = s => (W.cost * lowBest("landed")(s) + W.lead * lowBest("lead_weeks")(s) + W.quality * lowBest("ppm")(s) + W.delivery * highBest("otd")(s)) / tot;
+    const best = q.reduce((a, b) => score(b) > score(a) ? b : a), low = q.reduce((a, b) => b.landed < a.landed ? b : a);
+    premium += (best.landed - low.landed) * best.annual_qty;
+    leadPick += best.lead_weeks * best.annual_qty; leadLow += low.lead_weeks * low.annual_qty; qtyAll += best.annual_qty;
+    defPick += best.annual_qty * best.ppm / 1e6; defLow += low.annual_qty * low.ppm / 1e6; changed += best !== low;
+    rows += `<tr><td><b>${p}</b> <span class="soft">${esc(q[0].desc)}</span></td>` + sups.map(sn => { const s = q.find(x => x.supplier === sn);
+      return `<td class="${s === best ? "pick" : ""}">$${s.price.toFixed(2)}<br><span class="soft" style="font-size:.78rem">landed $${s.landed.toFixed(2)} · ${s.lead_weeks}w</span></td>`; }).join("") +
+      `<td>${best === low ? "lowest cost" : `<span style="color:var(--warn)">+$${(best.landed - low.landed).toFixed(2)}/unit</span>`}</td></tr>`;
+  });
+  const dl = (leadLow - leadPick) / qtyAll, dd = defLow - defPick;
+  const summary = changed === 0
+    ? `At these weights every pick is also the lowest landed cost.`
+    : `At these weights, ${changed} of ${parts.length} picks aren't the cheapest. That premium of <b>$${Math.round(premium).toLocaleString()} a year</b> buys <b>${dl.toFixed(1)} weeks</b> shorter average lead time and about <b>${Math.round(dd)} fewer defective parts</b> a year. Whether that's worth it is the call to bring to the CEO; move the weights to see the trade-off.`;
+  document.getElementById("supp").innerHTML = `<thead><tr><th>Part</th>${sups.map(s => { const x = d.suppliers.find(y => y.supplier === s); return `<th>${s}<br><span style="font-weight:400">${pct(x.otd, 0)} on time · ${x.ppm} ppm</span></th>`; }).join("")}<th>vs lowest landed</th></tr></thead><tbody>${rows}</tbody>` +
+    `<tfoot><tr><td colspan="${sups.length + 2}" style="text-align:left;white-space:normal" class="soft">Green is the pick at these weights. ${summary}</td></tr></tfoot>`;
+}
+suppliers();
+
+// ---------------------------------------------------------------- 2. MRP
+const wk = [...Array(12).keys()].map(i => i + 1);
+document.getElementById("mrp").innerHTML = `<thead><tr><th>Part</th>${wk.map(w => `<th>W${w}</th>`).join("")}<th>Runs out</th><th>Order by</th></tr></thead><tbody>` +
+  d.mrp.map(m => `<tr><td><b>${m.part}</b> <span class="soft">${esc(m.desc)}</span></td>${m.projected.map((v, i) => `<td class="c ${v < 0 ? "neg" : v < m.need[Math.min(i + 1, 11)] ? "low" : ""}">${v.toLocaleString()}</td>`).join("")}
+    <td>${m.first_short_week ? "W" + m.first_short_week : "–"}</td><td style="color:${m.order_by_week != null && m.order_by_week <= 0 ? "var(--bad)" : "inherit"};font-weight:${m.order_by_week != null && m.order_by_week <= 1 ? 700 : 400}">${m.order_by_week == null ? "–" : m.order_by_week <= 0 ? "too late" : "W" + m.order_by_week}</td></tr>`).join("") + "</tbody>";
+const po = p101.open_po;
+document.getElementById("mrpnote").innerHTML = `<div class="callout"><b>Act now: ${p101.desc} (${p101.part}).</b> ${po.supplier} pushed a ${po.qty.toLocaleString()}-unit order from week ${po.due} to week ${po.now_expected}. Stock runs out in week ${p101.first_short_week}, and even the fastest supplier quotes ${p101.fastest_lead_weeks} weeks, so a normal order can't arrive in time. Options: ask ${po.supplier} to split-ship part of the order early, pay to expedite, or re-sequence the build plan toward units already kitted. The other parts only need orders placed by the week shown.</div>`;
+
+// ---------------------------------------------------------------- 3. line balance
+let mode = "before";
+document.querySelectorAll("#tog button").forEach(b => b.onclick = () => { mode = b.dataset.k; document.querySelectorAll("#tog button").forEach(x => x.setAttribute("aria-pressed", x === b)); line(); });
+function line() {
+  const vals = mode === "before" ? L.steps.map(s => s.standard) : L.after, cyc = Math.max(...vals), cap = mode === "before" ? L.capacity_before : L.capacity_after;
+  const W = 620, H = 280, Lp = 40, R = 10, T = 14, B = 54, n = vals.length, max = Math.max(...L.steps.map(s => s.standard), L.takt) * 1.15, bw = (W - Lp - R) / n * .62;
+  const x = i => Lp + (W - Lp - R) * (i + .5) / n, y = v => T + (H - T - B) * (1 - v / max);
+  let o = [0, 40, 80, 120].map(v => `<line x1="${Lp}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--rule)"/><text class="axis" x="${Lp - 6}" y="${y(v) + 4}" text-anchor="end">${v}s</text>`).join("");
+  vals.forEach((v, i) => { const over = v > L.takt;
+    o += `<rect x="${x(i) - bw / 2}" y="${y(v)}" width="${bw}" height="${H - B - y(v)}" rx="3" fill="${over ? "var(--bad)" : v === cyc ? "var(--warn)" : "var(--a2)"}"/><text class="axis" x="${x(i)}" y="${y(v) - 5}" text-anchor="middle" style="fill:var(--ink);font-weight:600">${v.toFixed(0)}</text>`;
+    L.steps[i].step.split(" ").reduce((acc, w) => { const last = acc[acc.length - 1]; (last && (last + " " + w).length <= 12) ? acc[acc.length - 1] = last + " " + w : acc.push(w); return acc; }, []).slice(0, 3)
+      .forEach((ln, j) => o += `<text class="axis" x="${x(i)}" y="${H - B + 16 + j * 12}" text-anchor="middle">${esc(ln)}</text>`); });
+  o += `<line x1="${Lp}" x2="${W - R}" y1="${y(L.takt)}" y2="${y(L.takt)}" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 4"/><text class="axis" x="${W - R}" y="${y(L.takt) - 6}" text-anchor="end" style="fill:var(--accent);font-weight:600">takt ${L.takt.toFixed(0)}s (${L.demand_per_day}/day)</text>`;
+  document.getElementById("line").innerHTML = o;
+  document.getElementById("linekpi").innerHTML = `<p style="margin:0"><span class="num" style="font-size:2rem">${cap}</span> <span class="soft">units/day capacity vs ${L.demand_per_day} needed</span></p><p class="soft" style="margin:4px 0 0">Slowest station ${cyc.toFixed(0)}s ${cyc > L.takt ? `<b style="color:var(--bad)">above</b>` : `<b style="color:var(--good)">below</b>`} takt time.</p>`;
+  document.getElementById("linenote").textContent = mode === "before"
+    ? `${L.bottleneck} takes longer than takt time, so the whole line runs at its pace and falls ${L.demand_per_day - L.capacity_before} units a day short.`
+    : `Moving "${L.moved_task}" (${L.moved_seconds}s) to the previous station with a second fixture brings every station under takt: capacity ${L.capacity_after}/day covers demand with ${L.capacity_after - L.demand_per_day} to spare.`;
+}
+line();
+
+// ---------------------------------------------------------------- 4. quality
+(() => { const P = Q.pareto, tot = P.reduce((s, [, c]) => s + c, 0), W = 520, H = 260, Lp = 40, R = 40, T = 14, B = 70, n = P.length, max = P[0][1] * 1.1, bw = (W - Lp - R) / n * .7;
+  const x = i => Lp + (W - Lp - R) * (i + .5) / n, y = v => T + (H - T - B) * (1 - v / max), yc = v => T + (H - T - B) * (1 - v);
+  let o = "", cum = 0, path = "";
+  P.forEach(([t, c], i) => { cum += c; o += `<rect x="${x(i) - bw / 2}" y="${y(c)}" width="${bw}" height="${H - B - y(c)}" rx="2" fill="${i === 0 ? "var(--accent)" : "var(--a2)"}" opacity="${i === 0 ? 1 : .7}"/><text class="axis" x="${x(i)}" y="${y(c) - 4}" text-anchor="middle" style="fill:var(--ink)">${c}</text>`;
+    path += `${i ? "L" : "M"}${x(i)},${yc(cum / tot)}`;
+    o += `<text class="axis" transform="translate(${x(i) + 3},${H - B + 10}) rotate(35)">${esc(t.length > 22 ? t.slice(0, 21) + "…" : t)}</text>`; });
+  o += `<path d="${path}" fill="none" stroke="var(--ink)" stroke-width="1.5"/>` + [0, .5, 1].map(v => `<text class="axis" x="${W - R + 6}" y="${yc(v) + 4}">${v * 100}%</text>`).join("");
+  document.getElementById("pareto").innerHTML = o; })();
+(() => { const C = Q.chart, W = 520, H = 240, Lp = 44, R = 10, T = 12, B = 28, max = Math.max(...C.map(c => Math.max(c.p, c.ucl))) * 1.15;
+  const x = i => Lp + (W - Lp - R) * i / (C.length - 1), y = v => T + (H - T - B) * (1 - v / max), cen = Q.p_before;
+  let o = [0, .02, .04].map(v => `<line x1="${Lp}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--rule)"/><text class="axis" x="${Lp - 6}" y="${y(v) + 4}" text-anchor="end">${pct(v, 0)}</text>`).join("");
+  o += `<rect x="${x(5.5)}" y="${T}" width="${x(11) - x(5.5)}" height="${H - T - B}" fill="var(--good)" opacity=".07"/><text class="axis" x="${x(6) + 4}" y="${T + 12}" style="fill:var(--good)">fixture replaced</text>`;
+  o += `<path d="${C.map((c, i) => `${i ? "L" : "M"}${x(i)},${y(c.ucl)}`).join("")}" fill="none" stroke="var(--bad)" stroke-dasharray="4 3"/><path d="${C.map((c, i) => `${i ? "L" : "M"}${x(i)},${y(c.lcl)}`).join("")}" fill="none" stroke="var(--bad)" stroke-dasharray="4 3"/>`;
+  o += `<line x1="${Lp}" x2="${W - R}" y1="${y(cen)}" y2="${y(cen)}" stroke="var(--soft)"/><path d="${C.map((c, i) => `${i ? "L" : "M"}${x(i)},${y(c.p)}`).join("")}" fill="none" stroke="var(--accent)" stroke-width="2.4"/>`;
+  C.forEach((c, i) => o += `<circle cx="${x(i)}" cy="${y(c.p)}" r="4" fill="${c.p < c.lcl ? "var(--good)" : c.p > c.ucl ? "var(--bad)" : "var(--accent)"}"/><text class="axis" x="${x(i)}" y="${H - 8}" text-anchor="middle">W${c.week}</text>`);
+  document.getElementById("pchart").innerHTML = o;
+  const below = C.filter(c => c.week >= 7 && c.p < c.lcl).length;
+  document.getElementById("pnote").textContent = `A p-chart for ${Q.focus.toLowerCase()}: center line and 3-sigma limits from weeks 1–6 (${pct(Q.p_before)}). After the worn fixture was replaced and locating pins added in week 7, the rate fell to ${pct(Q.p_after)}, with ${below} of 6 weeks below the lower control limit: a real shift, not noise.`; })();
+
+// ---------------------------------------------------------------- 5. automation
+const F = { part: "Part number", supplier: "Supplier", price: "Unit price", moq: "Minimum order", lead_weeks: "Lead time" };
+document.getElementById("acc").innerHTML = `<table><thead><tr><th>Field</th><th>Correct</th></tr></thead><tbody>${Object.entries(A.field_accuracy).map(([k, v]) => `<tr><td>${F[k]}</td><td style="color:${v < 0.95 ? "var(--warn)" : "var(--good)"};font-weight:600">${pct(v, 0)}</td></tr>`).join("")}</tbody></table>
+  <p style="margin:12px 0 0">${pct(A.all_fields_right, 0)} of ${A.n} emails came out fully right. The review check sent <b>${A.routed_to_review}</b> to a person, which caught <b>${A.wrong_caught} of ${A.wrong}</b> wrong extractions, with ${A.right_but_reviewed} correct ones flagged unnecessarily.</p>
+  <p class="soft" style="margin:8px 0 0;font-size:.88rem">The rule: automate entry only when no field is missing and values sit within a plausible range of the part's usual price and order size. Everything else waits for a person.</p>`;
+document.getElementById("caught").innerHTML = A.examples.filter(e => e.review.length).map(e => `<div style="margin-bottom:12px"><div class="email">${esc(e.text)}</div>
+  <div class="flag">⚑ ${e.review.map(esc).join(" · ")}</div>
+  <div class="soft" style="font-size:.84rem">Read as: price ${e.got.price ?? "—"}, MOQ ${e.got.moq ?? "—"}, lead ${e.got.lead_weeks ?? "—"} wks · actually: $${e.truth.price}, ${e.truth.moq}, ${e.truth.lead_weeks} wks</div></div>`).join("");
+</script>
+</body>
+</html>
